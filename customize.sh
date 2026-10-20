@@ -3,12 +3,11 @@ set_permissions() {
   set_perm /system/system_ext/priv-app/OpenEUICC/OpenEUICC.apk
 }
 
-TMP_FILE="$TMPDIR/OpenEUICC.apk"
-
 chmod u+x "$MODPATH/uninstall.sh"
-cp "$MODPATH/system/system_ext/priv-app/OpenEUICC/OpenEUICC.apk" "$TMP_FILE"
 
-pm install -r "$TMP_FILE"
-rm -f "$TMP_FILE"
-
-pm grant "im.angry.openeuicc" android.permission.READ_PHONE_STATE
+# Older versions of this module also ran `pm install`, leaving a copy in /data/app that
+# shadows the privileged system app (no privileged permissions). Remove it; the
+# system app comes up after reboot.
+case "$(pm path im.angry.openeuicc)" in
+  *package:/data/app/*) pm uninstall im.angry.openeuicc ;;
+esac
